@@ -1,4 +1,5 @@
 const express = require('express')
+const mongoose = require('mongoose')
 const cors = require('cors')
 const morgan = require('morgan')
 const fetch = require('node-fetch')
@@ -10,6 +11,19 @@ const app = express()
 
 app.use(morgan('tiny'))
 app.use(cors())
+
+const DB = process.env.DB_URI
+
+mongoose.connect(DB, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  useUnifiedTopology: true
+}).then(conn => {
+  console.log('database connected successfully')
+}).catch(err => {
+  console.log(err)
+})
 
 
 
@@ -49,7 +63,7 @@ app.use(errorHandler)
 
 
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Server is up and running at port ${PORT}`)
 })

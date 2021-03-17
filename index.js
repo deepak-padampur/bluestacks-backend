@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const schedule = require('node-schedule')
 const cors = require('cors')
 const morgan = require('morgan')
 const fetch = require('node-fetch')
@@ -25,20 +26,31 @@ mongoose.connect(DB, {
   console.log(err)
 })
 
+//at recurrent interval schedule a job
+//Every minute:''
+//Every one hour:'0 * * * *'
+//daily
 
-
-app.get('/videos', (req, res) => {
+schedule.scheduleJob('fetch-trending-feed', '0 * * * *', () => {
+  console.log('Treding video fetched')
   const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&part=statistics&part=player&chart=mostPopular&regionCode=IN&maxResults=25&key=${process.env.API_KEY}`
 
   fetch(url)
     .then(res => res.json())
     .then(videos => {
-      res.status(200).json(videos)
+      console.log(videos)
+      // res.status(200).json(videos)
     }).catch(err => {
       console.log(err)
     })
 
+  //cancel the job
+  schedule.cancelJob('fetch-trending-feed')
+})
 
+
+
+app.get('/videos', (req, res) => {
 
 })
 

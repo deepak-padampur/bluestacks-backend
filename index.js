@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
+const fetch = require('node-fetch')
 
 require('dotenv').config()
 
@@ -13,7 +14,18 @@ app.use(cors())
 
 
 app.get('/videos', (req, res) => {
-  res.status(200).json([])
+  const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&part=statistics&part=player&chart=mostPopular&regionCode=IN&maxResults=25&key=${process.env.API_KEY}`
+
+  fetch(url)
+    .then(res => res.json())
+    .then(videos => {
+      res.status(200).json(videos)
+    }).catch(err => {
+      console.log(err)
+    })
+
+
+
 })
 
 

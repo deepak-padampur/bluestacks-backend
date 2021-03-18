@@ -49,7 +49,12 @@ schedule.scheduleJob('fetch-trending-feed', '0 * * * *', () => {
     })
 })
 
-
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: "Success",
+    message: 'Server is up an running'
+  })
+})
 
 app.get('/api/v1/videos', (req, res) => {
 

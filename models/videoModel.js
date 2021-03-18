@@ -34,7 +34,7 @@ const snippetSchema = new mongoose.Schema({
   channelId: String,
   title: String,
   description: String,
-  thumbnail: thumbnailSchema,
+  thumbnails: thumbnailSchema,
   channelTitle: String,
   tags: [String],
   categoryId: String,

@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const compression = require('compression')
 const trendingFeed = require('./models/videoModel')
 const schedule = require('node-schedule')
 const _ = require('lodash')
@@ -14,6 +15,7 @@ const app = express()
 
 app.use(morgan('tiny'))
 app.use(cors())
+app.use(compression())
 
 const DB = process.env.DB_URI
 

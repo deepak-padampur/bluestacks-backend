@@ -1,6 +1,8 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const trendingFeed = require('./models/videoModel')
 const schedule = require('node-schedule')
+const _ = require('lodash')
 const cors = require('cors')
 const morgan = require('morgan')
 const fetch = require('node-fetch')
@@ -26,31 +28,56 @@ mongoose.connect(DB, {
   console.log(err)
 })
 
-//at recurrent interval schedule a job
-//Every minute:''
-//Every one hour:'0 * * * *'
-//daily
+const trending = mongoose.model('trending', trendingFeed)
 
 schedule.scheduleJob('fetch-trending-feed', '0 * * * *', () => {
-  console.log('Treding video fetched')
-  const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&part=statistics&part=player&chart=mostPopular&regionCode=IN&maxResults=25&key=${process.env.API_KEY}`
 
+  const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&part=statistics&part=player&chart=mostPopular&regionCode=IN&maxResults=25&key=${process.env.API_KEY}`
   fetch(url)
     .then(res => res.json())
     .then(videos => {
-      console.log(videos)
-      // res.status(200).json(videos)
+      trending.create(videos).then(doc => {
+        console.log('data added successfully')
+      }).catch(err => {
+        console.log(err)
+      })
+
     }).catch(err => {
       console.log(err)
     })
-
-  //cancel the job
-  schedule.cancelJob('fetch-trending-feed')
 })
 
 
 
-app.get('/videos', (req, res) => {
+app.get('/api/v1/videos', (req, res) => {
+
+  trending
+    .find()
+    .sort({ $natural: -1 })
+    .limit(1)
+    .then(doc => {
+      res.status(200).json(doc)
+    }).catch(err => {
+      res.json({ err })
+    })
+
+
+})
+
+app.get('/api/v1/videos/:id', (req, res) => {
+  if (req.params.id) {
+    trending.find({
+      "items._id": req.params.id
+    }, { 'items.$': 1 }).then(doc => {
+      res.status(200).json(doc)
+    }).catch(err => {
+      res.json(err)
+    })
+  } else {
+    res.json({
+      message: "query params not defined"
+    })
+  }
 
 })
 
